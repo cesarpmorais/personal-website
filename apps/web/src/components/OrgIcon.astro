@@ -1,0 +1,41 @@
+---
+import { Image } from 'astro:assets';
+import type { Org } from '../data/resume';
+
+interface Props {
+  org: Org;
+}
+
+const { org } = Astro.props;
+---
+
+{
+  org.logo ? (
+    <div class="block-icon bg-white p-1.5">
+      {/* O Astro gera uma versão otimizada (WebP, tamanho certo para telas retina) no build */}
+      <Image src={org.logo} alt={org.name} width={64} densities={[1, 2]} class="size-full object-contain" />
+    </div>
+  ) : (
+    <div class="block-icon font-pixel" style={{ backgroundColor: org.color }} aria-hidden="true">
+      {org.mark}
+    </div>
+  )
+}
+
+<style>
+  /* Bloco com chanfro claro em cima/esquerda e escuro embaixo/direita, como um bloco de Minecraft */
+  .block-icon {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    color: white;
+    font-size: 1.25rem;
+    text-shadow: 2px 2px 0 rgb(0 0 0 / 0.35);
+    box-shadow:
+      inset 3px 3px 0 rgb(255 255 255 / 0.28),
+      inset -3px -3px 0 rgb(0 0 0 / 0.35),
+      4px 4px 0 rgb(0 0 0 / 0.5);
+  }
+</style>

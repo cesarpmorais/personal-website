@@ -1,0 +1,114 @@
+---
+// Fundo do site. Qual padrão aparece depende de <html data-bg="..." data-bg-anim="on|off">.
+// As regras de cada fundo são geradas a partir de src/backgrounds.ts.
+import { backgrounds } from '../backgrounds';
+
+const px = (n: number) => `${n}px`;
+const DARK = '11 12 15'; // #0b0c0f em RGB, para as camadas de sombra
+
+const rules: string[] = [];
+const motion: string[] = []; // regras que só valem quando o usuário não pediu menos movimento
+
+for (const bg of backgrounds) {
+  const sel = `html[data-bg="${bg.id}"]`;
+  const on = `${sel}[data-bg-anim="on"]`;
+  const [tw, th] = bg.tile;
+  const anim = bg.animation;
+
+  rules.push(`${sel} .bg-pattern { background-image: ${bg.image}; --tw: ${px(tw)}; --th: ${px(th)}; }`);
+  if (bg.rotated) rules.push(`${sel} .bg-pattern { inset: auto; width: 200vmax; height: 200vmax; left: calc(50% - 100vmax); top: calc(50% - 100vmax); transform: rotate(-45deg); }`);
+
+  if (anim.kind === 'drift') {
+    motion.push(`${on} .bg-pattern { --dx: ${px(anim.dx)}; --dy: ${px(anim.dy)}; animation: bg-drift ${anim.duration}s linear infinite; }`);
+  }
+  if (anim.kind === 'travel') {
+    motion.push(`${on} .bg-pattern { --dx: ${px(anim.dx)}; animation: bg-travel ${anim.duration}s linear infinite; }`);
+  }
+  if (anim.kind === 'wave-pass') {
+    // Faixas paralelas às linhas, de "apagado" a "aceso" e de volta: uma onda de luz passando por baixo.
+    const p = anim.period;
+    const step = (p / Math.SQRT2).toFixed(3);
+    motion.push(`${on} .bg-overlay {
+      display: block; inset: -${px(p)};
+      background: repeating-linear-gradient(135deg,
+        rgb(${DARK} / 0.6) 0px, rgb(${DARK} / 0.45) ${px(p * 0.25)}, rgb(${DARK} / 0.05) ${px(p * 0.5)},
+        rgb(${DARK} / 0.45) ${px(p * 0.75)}, rgb(${DARK} / 0.6) ${px(p)});
+      --dx: ${step}px; --dy: ${step}px;
+      animation: bg-drift ${anim.duration}s linear infinite;
+    }`);
+  }
+  if (anim.kind === 'spotlight') {
+    rules.push(`${on} .bg-overlay {
+      display: block; inset: 0;
+      background: radial-gradient(circle ${px(anim.radius)} at var(--mx, 50%) var(--my, 30%), transparent 0%, rgb(${DARK} / 0.8) 100%);
+    }`);
+  }
+}
+
+const css = `${rules.join('\n')}\n@media (prefers-reduced-motion: no-preference) {\n${motion.join('\n')}\n}`;
+const spotlightIds = backgrounds.filter((bg) => bg.animation.kind === 'spotlight').map((bg) => bg.id).join(' ');
+---
+
+<Fragment set:html={`<style>${css}</style>`} />
+
+<div class="backdrop" aria-hidden="true" data-spotlight-ids={spotlightIds}>
+  <div class="bg-pattern"></div>
+  <div class="bg-overlay"></div>
+</div>
+
+<style is:global>
+  .backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .bg-pattern {
+    position: absolute;
+    /* Sobra de 2 tiles em cada lado: a camada pode deslizar um tile sem mostrar borda */
+    inset: calc(var(--th) * -2) calc(var(--tw) * -2);
+    will-change: transform;
+  }
+
+  .bg-overlay {
+    display: none;
+    position: absolute;
+    will-change: transform;
+  }
+
+  /* Cada ciclo anda exatamente um tile, então o loop não tem emenda */
+  @keyframes bg-drift {
+    to {
+      transform: translate(var(--dx), var(--dy));
+    }
+  }
+
+  @keyframes bg-travel {
+    to {
+      transform: rotate(-45deg) translateX(var(--dx));
+    }
+  }
+</style>
+
+<script>
+  // Lanterna do fundo "spotlight": acompanha o mouse (só quando esse fundo está ativo e animado).
+  const backdrop = document.querySelector<HTMLElement>('.backdrop');
+  const spotlightIds = backdrop?.dataset.spotlightIds?.split(' ') ?? [];
+  let frame = 0;
+
+  window.addEventListener(
+    'pointermove',
+    (event) => {
+      const root = document.documentElement;
+      if (!backdrop || root.dataset.bgAnim !== 'on' || !spotlightIds.includes(root.dataset.bg ?? '')) return;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        backdrop.style.setProperty('--mx', `${event.clientX}px`);
+        backdrop.style.setProperty('--my', `${event.clientY}px`);
+      });
+    },
+    { passive: true },
+  );
+</script>

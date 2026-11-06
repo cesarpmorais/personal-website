@@ -1,0 +1,27 @@
+---
+import { languages, ui, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+---
+
+<nav aria-label={ui[lang].switchLabel} class="font-pixel text-xs flex border border-line shadow-[2px_2px_0_rgb(0_0_0/0.6)]">
+  {
+    (Object.keys(languages) as Lang[]).map((key) => (
+      <a
+        href={languages[key].path}
+        hreflang={languages[key].htmlLang}
+        aria-current={key === lang ? 'true' : undefined}
+        class:list={[
+          'px-2.5 py-1.5 transition-colors',
+          key === lang ? 'bg-accent text-white' : 'text-muted hover:text-fg hover:bg-surface',
+        ]}
+      >
+        {languages[key].label}
+      </a>
+    ))
+  }
+</nav>

@@ -1,0 +1,47 @@
+@import "@fontsource-variable/inter";
+@import "@fontsource/silkscreen";
+@import "tailwindcss";
+
+/* Design tokens: viram classes do Tailwind (bg-bg, text-fg, text-muted, font-pixel…) */
+@theme {
+  --color-bg: #0b0c0f;
+  --color-surface: #13151a;
+  --color-line: #23262e;
+  --color-fg: #e8eaf0;
+  --color-muted: #8a8f9c;
+  --color-accent: #2f529e; /* azul Cruzeiro */
+  --color-accent-light: #90a9df; /* mesmo matiz, mais claro: texto legível sobre o fundo escuro */
+
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-pixel: "Silkscreen", ui-monospace, monospace;
+}
+
+@layer base {
+  html {
+    @apply bg-bg text-fg font-sans antialiased;
+    color-scheme: dark;
+    scroll-behavior: smooth;
+  }
+
+  ::selection {
+    @apply bg-accent text-white;
+  }
+}
+
+/* Entrada suave dos blocos ao rolar a página (só onde o navegador suporta e o usuário não pediu menos movimento) */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 35%;
+    }
+  }
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}

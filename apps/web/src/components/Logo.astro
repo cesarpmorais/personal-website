@@ -1,0 +1,53 @@
+---
+interface Props {
+  href: string;
+}
+
+const { href } = Astro.props;
+
+const parts = [
+  { text: 'cesarpmorais', accent: false },
+  { text: '.dev', accent: true },
+];
+const letters = parts.flatMap(({ text, accent }) => [...text].map((char) => ({ char, accent })));
+---
+
+<a href={href} class="logo font-pixel text-sm" aria-label="cesarpmorais.dev">
+  <span aria-hidden="true" class="flex">
+    {
+      letters.map(({ char, accent }) => (
+        // O <span> de fora recebe o hover e não se mexe; só o de dentro sobe.
+        // Assim a letra não "foge" do cursor e não fica piscando.
+        <span class="letter">
+          <span class:list={['glyph', accent && 'text-accent']}>{char}</span>
+        </span>
+      ))
+    }
+  </span>
+</a>
+
+<style>
+  .letter {
+    display: inline-block;
+    padding-block: 10px; /* área de hover maior que a letra */
+  }
+
+  .glyph {
+    display: inline-block;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .glyph {
+      transition: transform 180ms cubic-bezier(0.3, 0.7, 0.4, 1);
+    }
+
+    /* A letra sob o cursor sobe; as vizinhas sobem menos, formando uma onda */
+    .letter:hover .glyph {
+      transform: translateY(-6px);
+    }
+    .letter:hover + .letter .glyph,
+    .letter:has(+ .letter:hover) .glyph {
+      transform: translateY(-3px);
+    }
+  }
+</style>

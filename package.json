@@ -1,0 +1,11 @@
+{
+  "name": "personal-website",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm --filter web build",
+    "preview": "pnpm --filter web preview"
+  },
+  "packageManager": "pnpm@12.18.0"
+}

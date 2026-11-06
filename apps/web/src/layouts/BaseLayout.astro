@@ -1,0 +1,55 @@
+---
+import '../styles/global.css';
+import { languages, type Lang } from '../i18n';
+import Backdrop from '../components/Backdrop.astro';
+import DevBackgroundBar from '../components/DevBackgroundBar.astro';
+import { DEFAULT_BACKGROUND } from '../backgrounds';
+// Pré-carrega as fontes para o texto não "pular" quando elas chegam depois da primeira pintura.
+import interFont from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
+import pixelFont from '@fontsource/silkscreen/files/silkscreen-latin-400-normal.woff2?url';
+
+interface Props {
+  title: string;
+  description?: string;
+  lang: Lang;
+}
+
+const { title, description = 'César Morais — software engineer.', lang } = Astro.props;
+---
+
+<html lang={languages[lang].htmlLang} data-bg={DEFAULT_BACKGROUND.id} data-bg-anim={DEFAULT_BACKGROUND.animated ? 'on' : 'off'}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#0b0c0f" />
+    <link rel="preload" href={interFont} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={pixelFont} as="font" type="font/woff2" crossorigin />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    {
+      Object.values(languages).map((l) => (
+        <link rel="alternate" hreflang={l.htmlLang} href={new URL(l.path, Astro.site ?? Astro.url).href} />
+      ))
+    }
+    <title>{title}</title>
+    {
+      import.meta.env.DEV && (
+        // Em dev, restaura o fundo escolhido na barra antes da primeira pintura (sem piscar o padrão).
+        <script is:inline>
+          try {
+            const saved = JSON.parse(localStorage.getItem('dev-background') || 'null');
+            if (saved) {
+              document.documentElement.dataset.bg = saved.id;
+              document.documentElement.dataset.bgAnim = saved.anim;
+            }
+          } catch {}
+        </script>
+      )
+    }
+  </head>
+  <body class="min-h-screen">
+    <Backdrop />
+    <slot />
+    {import.meta.env.DEV && <DevBackgroundBar />}
+  </body>
+</html>

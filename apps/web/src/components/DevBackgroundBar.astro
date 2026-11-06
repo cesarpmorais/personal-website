@@ -1,0 +1,158 @@
+---
+// Barra só de desenvolvimento para testar fundos. Não entra no build de produção.
+// Atalhos: Alt+B abre/fecha · [ e ] trocam o fundo · A liga/desliga a animação.
+import { backgrounds } from '../backgrounds';
+---
+
+<div id="dev-bg-bar" class="dev-bar" data-open="false">
+  <div class="dev-bar-inner">
+    <span class="dev-bar-title">fundo</span>
+    <div class="dev-bar-options">
+      {backgrounds.map((bg) => <button type="button" data-bg-option={bg.id}>{bg.label}</button>)}
+    </div>
+    <button type="button" class="dev-bar-anim" data-anim-toggle>animação: on</button>
+    <span class="dev-bar-hint">Alt+B fecha · [ ] troca · A anima</span>
+  </div>
+  <button type="button" class="dev-bar-handle" data-toggle aria-label="Abrir barra de fundos">bg</button>
+</div>
+
+<style>
+  .dev-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    transform: translateY(-100%);
+    transition: transform 200ms ease;
+    font: 12px/1.2 ui-monospace, monospace;
+  }
+
+  .dev-bar[data-open='true'] {
+    transform: none;
+  }
+
+  .dev-bar-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    padding: 10px 16px;
+    background: rgb(19 21 26 / 0.95);
+    border-bottom: 1px solid var(--color-accent);
+    backdrop-filter: blur(8px);
+  }
+
+  .dev-bar-title {
+    color: var(--color-accent-light);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .dev-bar-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .dev-bar button {
+    padding: 5px 9px;
+    color: #8a8f9c;
+    background: #0b0c0f;
+    border: 1px solid #23262e;
+    cursor: pointer;
+  }
+
+  .dev-bar button:hover {
+    color: #e8eaf0;
+  }
+
+  .dev-bar button[aria-pressed='true'] {
+    color: white;
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .dev-bar-hint {
+    margin-left: auto;
+    color: #8a8f9c;
+  }
+
+  /* Alcinha para abrir com o mouse, quase invisível até passar o mouse */
+  .dev-bar .dev-bar-handle {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    translate: -50% 0;
+    padding: 2px 10px;
+    opacity: 0.25;
+    border-top: none;
+  }
+
+  .dev-bar .dev-bar-handle:hover {
+    opacity: 1;
+  }
+</style>
+
+<script>
+  import { backgrounds } from '../backgrounds';
+
+  const STORAGE_KEY = 'dev-background';
+  const root = document.documentElement;
+  const bar = document.getElementById('dev-bg-bar')!;
+  const optionButtons = bar.querySelectorAll<HTMLButtonElement>('[data-bg-option]');
+  const animButton = bar.querySelector<HTMLButtonElement>('[data-anim-toggle]')!;
+
+  function save() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ id: root.dataset.bg, anim: root.dataset.bgAnim }));
+    } catch {}
+  }
+
+  function render() {
+    optionButtons.forEach((btn) => btn.setAttribute('aria-pressed', String(btn.dataset.bgOption === root.dataset.bg)));
+    const on = root.dataset.bgAnim === 'on';
+    animButton.textContent = `animação: ${on ? 'on' : 'off'}`;
+    animButton.setAttribute('aria-pressed', String(on));
+  }
+
+  function select(id: string) {
+    root.dataset.bg = id;
+    save();
+    render();
+  }
+
+  function cycle(direction: 1 | -1) {
+    const index = backgrounds.findIndex((bg) => bg.id === root.dataset.bg);
+    const next = backgrounds[(index + direction + backgrounds.length) % backgrounds.length];
+    select(next.id);
+  }
+
+  function toggleAnim() {
+    root.dataset.bgAnim = root.dataset.bgAnim === 'on' ? 'off' : 'on';
+    save();
+    render();
+  }
+
+  function toggleBar() {
+    bar.dataset.open = bar.dataset.open === 'true' ? 'false' : 'true';
+  }
+
+  optionButtons.forEach((btn) => btn.addEventListener('click', () => select(btn.dataset.bgOption!)));
+  animButton.addEventListener('click', toggleAnim);
+  bar.querySelector('[data-toggle]')!.addEventListener('click', toggleBar);
+
+  window.addEventListener('keydown', (event) => {
+    if (event.altKey && event.code === 'KeyB') {
+      event.preventDefault();
+      toggleBar();
+      return;
+    }
+    if (bar.dataset.open !== 'true' || event.metaKey || event.ctrlKey || event.altKey) return;
+    if (event.key === ']') cycle(1);
+    if (event.key === '[') cycle(-1);
+    if (event.key.toLowerCase() === 'a') toggleAnim();
+  });
+
+  render();
+</script>

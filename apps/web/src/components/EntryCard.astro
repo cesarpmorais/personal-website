@@ -1,0 +1,66 @@
+---
+import type { Entry } from '../data/resume';
+import OrgIcon from './OrgIcon.astro';
+
+interface Props {
+  entry: Entry;
+}
+
+const { entry } = Astro.props;
+const { org, roles, advisor, highlights, tags } = entry;
+---
+
+<article class="grid grid-cols-[44px_1fr] gap-x-5 gap-y-4 py-8 border-t border-line first:border-t-0 first:pt-0">
+  <div class="reveal"><OrgIcon org={org} /></div>
+
+  <div>
+    <header class="reveal">
+      <h3 class="text-lg font-semibold leading-tight">
+        {org.url ? <a href={org.url} class="hover:text-accent-light transition-colors">{org.name}</a> : org.name}
+      </h3>
+      {org.description && <p class="text-sm text-muted">{org.description}</p>}
+    </header>
+
+    <ul class="reveal mt-4 space-y-2">
+      {roles.map((role) => (
+        <li>
+          <div class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-x-4">
+            <span class="font-medium">{role.title}</span>
+            <span class="font-pixel text-xs text-muted shrink-0">{role.period}</span>
+          </div>
+          {role.note && <p class="text-xs text-accent-light mt-0.5">{role.note}</p>}
+        </li>
+      ))}
+    </ul>
+
+    {advisor && (
+      <p class="reveal mt-2 text-sm text-muted">
+        {advisor.label}:{' '}
+        {advisor.url ? (
+          <a href={advisor.url} target="_blank" rel="noopener" class="text-fg/85 underline underline-offset-4 decoration-line hover:decoration-accent">
+            {advisor.name}
+          </a>
+        ) : (
+          advisor.name
+        )}
+      </p>
+    )}
+
+    <ul class="mt-5 space-y-3 text-[15px] leading-relaxed text-fg/80">
+      {highlights.map((item) => (
+        <li class="reveal flex gap-3">
+          <span class="mt-[0.6em] size-1.5 shrink-0 bg-accent" aria-hidden="true" />
+          <span>{item}</span>
+        </li>
+      ))}
+    </ul>
+
+    {tags && (
+      <ul class="reveal mt-5 flex flex-wrap gap-2">
+        {tags.map((tag) => (
+          <li class="text-xs px-2 py-1 bg-surface border border-line text-muted">{tag}</li>
+        ))}
+      </ul>
+    )}
+  </div>
+</article>
