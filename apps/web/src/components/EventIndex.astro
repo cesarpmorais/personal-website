@@ -21,7 +21,8 @@ for (const e of events) {
 }
 const groups = [...byCity.values()].map((g) => ({ id: g.city.id, ...g })).sort((a, b) => b.items.length - a.items.length);
 
-const pins = groups.map((g) => ({ ...g.city, count: g.items.length }));
+// O pino usa a posição de exibição da cidade (cities.yaml → pin), se houver
+const pins = groups.map((g) => ({ ...g.city, ...(g.city.pin ?? {}), count: g.items.length }));
 const years = [...new Set(events.map((e) => e.start.slice(0, 4)))].sort();
 ---
 

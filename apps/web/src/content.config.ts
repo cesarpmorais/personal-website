@@ -37,6 +37,8 @@ const cities = defineCollection({
     short: z.string(),
     lat: z.number(),
     lon: z.number(),
+    /** Onde desenhar o pino no globo, quando a posição real fica apertada (opcional). */
+    pin: z.object({ lat: z.number(), lon: z.number() }).optional(),
   }),
 });
 

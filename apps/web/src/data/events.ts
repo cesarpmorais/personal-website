@@ -22,6 +22,7 @@ export interface City {
   short: string;
   lat: number;
   lon: number;
+  pin?: { lat: number; lon: number };
 }
 
 export interface EventItem {

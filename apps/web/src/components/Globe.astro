@@ -17,7 +17,7 @@ interface Props {
 const { pins, lang, label } = Astro.props;
 
 // Grade de pontos com espaçamento parecido em toda a esfera; guarda só os que caem em terra.
-const STEP = 2.6;
+const STEP = 2;
 let landDots: [number, number][] | undefined;
 function getLandDots() {
   if (landDots) return landDots;
@@ -82,7 +82,10 @@ function getLandDots() {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 4px;
+    /* Altura fixa no tamanho do quadradinho: o rótulo (mais alto, com o ícone) cresce para cima e
+       para baixo sem empurrar o quadradinho para fora da coordenada da cidade */
+    height: 18px;
+    padding: 0 4px;
     margin: -9px 0 0 -9px;
     background: none;
     border: 0;
@@ -97,8 +100,8 @@ function getLandDots() {
   }
 
   .pin-dot {
-    width: 10px;
-    height: 10px;
+    width: 7px;
+    height: 7px;
     background: var(--color-accent);
     box-shadow:
       0 0 0 2px var(--color-bg),
@@ -145,19 +148,20 @@ function getLandDots() {
   }
 
   /* BH e SP ficam no lado leste e pertinho uma da outra: os rótulos vão para a esquerda
-     (sem invadir a coluna de texto), BH um pouco acima e SP um pouco abaixo */
+     (sem invadir a coluna de texto). O quadradinho fica sempre na coordenada exata da cidade;
+     só o rótulo se afasta — o de BH um pouco para cima, o de SP um pouco para baixo */
   .pin[data-pin='bh'],
   .pin[data-pin='sp'] {
     flex-direction: row-reverse;
     translate: calc(-100% + 18px) 0;
   }
 
-  .pin[data-pin='bh'] {
-    margin-top: -16px;
+  .pin[data-pin='bh'] .pin-label {
+    translate: 0 -11px;
   }
 
-  .pin[data-pin='sp'] {
-    margin-top: 8px;
+  .pin[data-pin='sp'] .pin-label {
+    translate: 0 11px;
   }
 
   .pin-label {
@@ -219,8 +223,8 @@ function getLandDots() {
     const LINE = color('--color-line', '#23262e');
     const FG = color('--color-fg', '#e8eaf0');
 
-    // Começa com as três cidades à vista (entre o Brasil e a Califórnia)
-    let center: [number, number] = [-84, 8];
+    // Começa com as três cidades à vista, com o Brasil mais de frente (perto da borda ele fica espremido)
+    let center: [number, number] = [-70, 2];
     const projection = geoOrthographic().clipAngle(90).precision(0.4);
     const path = geoPath(projection, ctx);
     let size = 0;
@@ -257,7 +261,7 @@ function getLandDots() {
       ctx.stroke();
 
       // terra em pontos quadrados, mais fracos perto da borda (dá volume)
-      const cell = Math.max(1.6, r / 105);
+      const cell = Math.max(1.4, r / 130);
       ctx.fillStyle = FG;
       for (const dot of dots) {
         const d = geoDistance(dot, center);
