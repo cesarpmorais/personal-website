@@ -50,7 +50,7 @@ const city = { ...e.city, name: e.city.name[lang] };
       <p class="label mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-muted">
         <span class="flex items-center gap-2">
           {city.name}
-          {e.city.id === 'sf' && <PixelIcon name="sf" />}
+          <PixelIcon name={e.city.id} />
         </span>
         {e.venue && <span>· {e.venue[lang]}</span>}
         {e.with && <span>· {t.with} {e.with.join(', ')}</span>}

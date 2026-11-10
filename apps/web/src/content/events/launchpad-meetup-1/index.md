@@ -1,8 +1,8 @@
 ---
 name: "Launchpad Meetup #1"
 title:
-  en: How we built Launchpad AI-first, from day one
-  pt: Como construímos o Launchpad com IA desde o primeiro dia
+  en: Kicking off the Launchpad meetups
+  pt: Abrindo os meetups do Launchpad
 start: 2026-10-22
 city: bh
 venue:
