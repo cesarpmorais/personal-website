@@ -171,7 +171,16 @@ importers:
       '@astrojs/react':
         specifier: ^7.1.4
         version: 7.1.4(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(jiti@2.7.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yaml@2.9.1)
+      '@fontsource-variable/archivo':
+        specifier: ^5.3.0
+        version: 5.3.0
+      '@fontsource-variable/caveat':
+        specifier: ^5.3.0
+        version: 5.3.0
       '@fontsource-variable/inter':
+        specifier: ^5.3.0
+        version: 5.3.0
+      '@fontsource/instrument-serif':
         specifier: ^5.3.0
         version: 5.3.0
       '@fontsource/silkscreen':
@@ -189,6 +198,9 @@ importers:
       astro:
         specifier: ^7.4.7
         version: 7.4.7(jiti@2.7.0)(yaml@2.9.1)
+      d3-geo:
+        specifier: ^3.1.2
+        version: 3.1.2
       react:
         specifier: ^19.3.1
         version: 19.3.1
@@ -198,6 +210,22 @@ importers:
       tailwindcss:
         specifier: ^4.3.4
         version: 4.3.4
+      topojson-client:
+        specifier: ^3.1.0
+        version: 3.1.0
+      world-atlas:
+        specifier: ^2.0.2
+        version: 2.0.2
+    devDependencies:
+      '@types/d3-geo':
+        specifier: ^3.1.1
+        version: 3.1.1
+      '@types/topojson-client':
+        specifier: ^3.1.5
+        version: 3.1.5
+      '@types/topojson-specification':
+        specifier: ^1.0.5
+        version: 1.0.5
 
 packages:
 
@@ -405,8 +433,17 @@ packages:
   '@emnapi/wasi-threads@1.2.3':
     resolution: {integrity: sha512-ELEBe8PsLvvJ6QMr0zLt8ffvOHW/dc1m3CEzNMg7aJUv3bMaoDtw2TXyDAwkYBuroxxuHEwhRTLJSe5sya547g==}
 
+  '@fontsource-variable/archivo@5.3.0':
+    resolution: {integrity: sha512-HogK8FJelrD1o7TlZlkIVtHgc20bO5PZRWE7mUeUTdMN055alznQV6/00J00IBeu8FQAH4s3zW9UJNvKExXf+g==}
+
+  '@fontsource-variable/caveat@5.3.0':
+    resolution: {integrity: sha512-Q3mjghoYIlXgwqBPJKZ4q6f3zu921Gq7UU76r9Z+NAmhapHfX130GIFpOCYf8vt2SIcgCi9RHDT7anfJKg/kiA==}
+
   '@fontsource-variable/inter@5.3.0':
     resolution: {integrity: sha512-OupL48va4JNofb97w6NYeF9S7W/kHNKM0Er8Dem5nqi4jeOLrVJDoE8tZEpnMJmtkvNbB1EIPPwHcdkF6b1oUA==}
+
+  '@fontsource/instrument-serif@5.3.0':
+    resolution: {integrity: sha512-mDiaIg0u67sYV59fie92Wz4sM8UiVlbL7fLxnFPCKkX15DMASEnQTREbaP5S5/3DCcsoAOcQ0sV9E4AeY4QqYQ==}
 
   '@fontsource/silkscreen@5.3.0':
     resolution: {integrity: sha512-M1NQ3LQH0LFNvyFPd/piHEGMImPPtpLglNnLC6Vdcq9kL0jNIOtTQmksAWCc4enbDnw1OnIpZtjNEfRqYm/QmA==}
@@ -828,11 +865,17 @@ packages:
   '@tybys/wasm-util@0.10.4':
     resolution: {integrity: sha512-W3c4gRigFS0T/Ma4qIYF3GDAc5AQdHb1yL5znJT1Zv1YaD9Kitx656wBjvr19qbiosmZT8lWDM5BEMynUqX65A==}
 
+  '@types/d3-geo@3.1.1':
+    resolution: {integrity: sha512-65Emv9fQiQQqphLlRkuQ5ypPsOmWPhtBGCMv61JDPEPMvsx+gzhGf74yw1a78xFKPj6zw4AgQICJoQv0vK9M2w==}
+
   '@types/estree-jsx@1.0.5':
     resolution: {integrity: sha512-52CcUVNFyfb1A2ALocQw/Dd1BQFNmSdkuC3BkZ6iqhdMfQz7JWOFRuJFloOzjk+6WijU56m9oKXFAXc7o3Towg==}
 
   '@types/estree@1.0.10':
     resolution: {integrity: sha512-lTyOMnOcmRBzdCv6/4zUZCrEhV0xrqQiUZBZtVcbmLHBXKLnN8q89v/wKRF/Q0HbwVsqbIG3o5HDoFl9sduM+g==}
+
+  '@types/geojson@7946.0.16':
+    resolution: {integrity: sha512-6C8nqWur3j98U6+lXDfTUWIfgvZU+EumvpHKcYjujKH7woYyLj2sUmff0tRhrqM7BohUw7Pz3ZB1jj2gW9Fvmg==}
 
   '@types/hast@3.0.5':
     resolution: {integrity: sha512-rp/ezSWaD1m44dPKICGhiskI13nVr7qTloFwDa/IYkhhf5nzwP+zIQcIJh3WIFSBOy/H1PzB40jPjMDksN4F+g==}
@@ -850,6 +893,12 @@ packages:
 
   '@types/react@19.3.0':
     resolution: {integrity: sha512-N0rFCuH9YoxG9/m61l9MfpJKfmLOVU0em7ipIz6TRgSSkvReLB9vL85GB+yr8Bs5leqpvg96JSwF4ZS1s4viQg==}
+
+  '@types/topojson-client@3.1.5':
+    resolution: {integrity: sha512-C79rySTyPxnQNNguTZNI1Ct4D7IXgvyAs3p9HPecnl6mNrJ5+UhvGNYcZfpROYV2lMHI48kJPxwR+F9C6c7nmw==}
+
+  '@types/topojson-specification@1.0.5':
+    resolution: {integrity: sha512-C7KvcQh+C2nr6Y2Ub4YfgvWvWCgP2nOQMtfhlnwsRL4pYmmwzBS7HclGiS87eQfDOU/DLQpX6GEscviaz4yLIQ==}
 
   '@types/unist@3.0.3':
     resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
@@ -933,6 +982,9 @@ packages:
     resolution: {integrity: sha512-yPVavfyCcRhmorC7rWlkHn15b4wDVgVmBA7kV4QVBsF7kv/9TKJAbAXVTxvTnwP8HHKjRCJDClKbciiYS7p0DQ==}
     engines: {node: '>=16'}
 
+  commander@2.20.3:
+    resolution: {integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==}
+
   common-ancestor-path@2.0.0:
     resolution: {integrity: sha512-dnN3ibLeoRf2HNC+OlCiNc5d2zxbLJXOtiZUudNFSXZrNSydxcCsSpRzXwfu7BBWCIfHPw+xTayeBvJCP/D8Ng==}
     engines: {node: '>= 18'}
@@ -968,6 +1020,14 @@ packages:
 
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
+
+  d3-array@3.2.5:
+    resolution: {integrity: sha512-Th8qGXoBalmWsstpkuhmBuTsBQIFqYOJtjlBvNVvBfJ8E3uYusBUwUR8HU20U0qKKQkgCvKyR1YjiozWadk5QA==}
+    engines: {node: '>=12'}
+
+  d3-geo@3.1.2:
+    resolution: {integrity: sha512-5R8ZgDQorIxmauv7R6gpE/ndz+Z0qAZssigq0aXFdvPHdY41RqtW02jrRUQAL724NdPABYXo1+gQEGBBr7uKNg==}
+    engines: {node: '>=12'}
 
   defu@6.1.7:
     resolution: {integrity: sha512-7z22QmUWiQ/2d0KkdYmANbRUVABpZ9SNYyH5vx6PZ+nE5bcC0l7uFvEfHlyld/HcGBFTL536ClDt3DEcSlEJAQ==}
@@ -1089,6 +1149,10 @@ packages:
 
   http-cache-semantics@4.3.0:
     resolution: {integrity: sha512-M5t5LlJpS1UHMjvwRQVdFHvPISGeLAxNcrWuJkeGh0KxsqCHZ1O3NXZU/8x7cD0BDcGW8kapxMKTvwlqrNkHkA==}
+
+  internmap@2.0.3:
+    resolution: {integrity: sha512-5Hh7Y1wQbvY5ooGgPbDaL5iYLAPzMTUrjMulskHLH6wnv/A+1q5rgEaiuqEjB+oxGXIVZs1FF+R/KPN3ZSQYYg==}
+    engines: {node: '>=12'}
 
   iron-webcrypto@1.2.1:
     resolution: {integrity: sha512-feOM6FaSr6rEABp/eDfVseKyTMDt+KGpeB35SkVn9Tyn0CqvVsY3EwI0v5i8nMHyJnzCIQf7nsy3p41TPkJZhg==}
@@ -1413,6 +1477,10 @@ packages:
   tinyps@0.5.1:
     resolution: {integrity: sha512-B6Ykif5HflC3AdDkS4Zst/2muYVfeXoVMy+KorqH80s/1x4vunIORpNySH681X7fjj+dFM9MDKD6/Hsccjb87Q==}
 
+  topojson-client@3.1.0:
+    resolution: {integrity: sha512-605uxS6bcYxGXw9qi62XyrV6Q3xwbndjachmNxu8HWTtVPxZfEJN9fd/SZS1Q54Sn2y0TMyMxFj/cJINqGHrKw==}
+    hasBin: true
+
   trim-lines@3.0.1:
     resolution: {integrity: sha512-kRj8B+YHZCc9kQYdWfJB2/oUl9rA99qbowYYBtr4ui4mZyAQ2JpvVBd/6U2YloATfqBhBTSMhTpgBHtU0Mf3Rg==}
 
@@ -1578,6 +1646,9 @@ packages:
     peerDependenciesMeta:
       vite:
         optional: true
+
+  world-atlas@2.0.2:
+    resolution: {integrity: sha512-IXfV0qwlKXpckz1FhwXVwKRjiIhOnWttOskm5CtxMsjgE/MXAYRHWJqgXOpM8IkcPBoXnyTU5lFHcYa5ChG0LQ==}
 
   xxhash-wasm@1.1.0:
     resolution: {integrity: sha512-147y/6YNh+tlp6nd/2pWq38i9h6mz/EuQ6njIrmW8D1BS5nCqs0P6DG+m6zTGnNz5I+uhZ0SHxBs9BsPrwcKDA==}
@@ -1808,7 +1879,13 @@ snapshots:
       tslib: 2.9.1
     optional: true
 
+  '@fontsource-variable/archivo@5.3.0': {}
+
+  '@fontsource-variable/caveat@5.3.0': {}
+
   '@fontsource-variable/inter@5.3.0': {}
+
+  '@fontsource/instrument-serif@5.3.0': {}
 
   '@fontsource/silkscreen@5.3.0': {}
 
@@ -2116,11 +2193,17 @@ snapshots:
       tslib: 2.9.1
     optional: true
 
+  '@types/d3-geo@3.1.1':
+    dependencies:
+      '@types/geojson': 7946.0.16
+
   '@types/estree-jsx@1.0.5':
     dependencies:
       '@types/estree': 1.0.10
 
   '@types/estree@1.0.10': {}
+
+  '@types/geojson@7946.0.16': {}
 
   '@types/hast@3.0.5':
     dependencies:
@@ -2141,6 +2224,15 @@ snapshots:
   '@types/react@19.3.0':
     dependencies:
       csstype: 3.2.3
+
+  '@types/topojson-client@3.1.5':
+    dependencies:
+      '@types/geojson': 7946.0.16
+      '@types/topojson-specification': 1.0.5
+
+  '@types/topojson-specification@1.0.5':
+    dependencies:
+      '@types/geojson': 7946.0.16
 
   '@types/unist@3.0.3': {}
 
@@ -2275,6 +2367,8 @@ snapshots:
 
   commander@11.1.0: {}
 
+  commander@2.20.3: {}
+
   common-ancestor-path@2.0.0: {}
 
   cookie-es@1.2.3: {}
@@ -2310,6 +2404,14 @@ snapshots:
       css-tree: 2.2.1
 
   csstype@3.2.3: {}
+
+  d3-array@3.2.5:
+    dependencies:
+      internmap: 2.0.3
+
+  d3-geo@3.1.2:
+    dependencies:
+      d3-array: 3.2.5
 
   defu@6.1.7: {}
 
@@ -2430,6 +2532,8 @@ snapshots:
   html-void-elements@3.0.0: {}
 
   http-cache-semantics@4.3.0: {}
+
+  internmap@2.0.3: {}
 
   iron-webcrypto@1.2.1: {}
 
@@ -2761,6 +2865,10 @@ snapshots:
 
   tinyps@0.5.1: {}
 
+  topojson-client@3.1.0:
+    dependencies:
+      commander: 2.20.3
+
   trim-lines@3.0.1: {}
 
   trough@2.2.0: {}
@@ -2854,6 +2962,8 @@ snapshots:
   vitefu@1.1.3(vite@8.3.5(jiti@2.7.0)(yaml@2.9.1)):
     optionalDependencies:
       vite: 8.3.5(jiti@2.7.0)(yaml@2.9.1)
+
+  world-atlas@2.0.2: {}
 
   xxhash-wasm@1.1.0: {}
 

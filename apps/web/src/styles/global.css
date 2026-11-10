@@ -1,8 +1,12 @@
 @import "@fontsource-variable/inter";
+@import "@fontsource-variable/archivo/standard.css";
+@import "@fontsource/instrument-serif/400.css";
+@import "@fontsource/instrument-serif/400-italic.css";
+@import "@fontsource-variable/caveat";
 @import "@fontsource/silkscreen";
 @import "tailwindcss";
 
-/* Design tokens: viram classes do Tailwind (bg-bg, text-fg, text-muted, font-pixel…) */
+/* Design tokens: viram classes do Tailwind (bg-bg, text-fg, font-display, font-serif…) */
 @theme {
   --color-bg: #0b0c0f;
   --color-surface: #13151a;
@@ -11,9 +15,15 @@
   --color-muted: #8a8f9c;
   --color-accent: #2f529e; /* azul Cruzeiro */
   --color-accent-light: #90a9df; /* mesmo matiz, mais claro: texto legível sobre o fundo escuro */
+  --color-paper: #ebe4d2; /* papel envelhecido: polaroids e chips */
+  --color-ochre: #c8963e;
+  --color-steel: #636b7e;
 
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-pixel: "Silkscreen", ui-monospace, monospace;
+  --font-display: "Archivo Variable", "Arial Narrow", ui-sans-serif, sans-serif; /* usada condensada, como em lament.tv */
+  --font-serif: "Instrument Serif", Georgia, serif;
+  --font-hand: "Caveat Variable", "Bradley Hand", cursive;
+  --font-pixel: "Silkscreen", ui-monospace, monospace; /* só no logo e nos chips */
 }
 
 @layer base {
@@ -23,8 +33,52 @@
     scroll-behavior: smooth;
   }
 
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
   ::selection {
     @apply bg-accent text-white;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent-light);
+    outline-offset: 3px;
+  }
+}
+
+@layer components {
+  /* Título condensado em caixa alta (lament.tv) */
+  .display {
+    font-family: var(--font-display);
+    font-stretch: 62%;
+    font-weight: 560;
+    text-transform: uppercase;
+    line-height: 0.86;
+    letter-spacing: -0.005em;
+  }
+
+  /* Rótulo pequeno em caixa alta, para metadados (righthemisphere.studio) */
+  .label {
+    font-size: 11px;
+    line-height: 1.4;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Link com sublinhado de rabisco, como no timeline do McCartney */
+  .scribble {
+    padding-bottom: 6px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 8' preserveAspectRatio='none'%3E%3Cpath d='M1 5 C 18 1, 36 7, 55 3 S 86 6, 99 2' fill='none' stroke='%232f529e' stroke-width='2' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E")
+      bottom / 100% 7px no-repeat;
+    transition: color 150ms;
+  }
+
+  .scribble:hover {
+    color: var(--color-accent-light);
   }
 }
 

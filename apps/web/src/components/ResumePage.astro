@@ -2,65 +2,50 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Section from './Section.astro';
 import EntryCard from './EntryCard.astro';
-import LangSwitch from './LangSwitch.astro';
-import Logo from './Logo.astro';
 import { resumes } from '../data/resume';
-import { languages, ui, type Lang } from '../i18n';
+import { routes, ui, type Lang } from '../i18n';
 
 interface Props {
   lang: Lang;
 }
 
 const { lang } = Astro.props;
-const t = ui[lang];
+const t = ui[lang].resume;
 const { profile, experience, education, research, publications, recognition, skills, spokenLanguages } = resumes[lang];
-
-const nav = [
-  { href: '#experience', label: t.work },
-  { href: '#education', label: t.education },
-  { href: '#research', label: t.research },
-  { href: '#skills', label: t.skills },
-];
 ---
 
-<BaseLayout lang={lang} title="Cesar Morais" description={profile.summary}>
-  <header class="sticky top-0 z-10 backdrop-blur bg-bg/70 border-b border-line">
-    <div class="mx-auto max-w-3xl px-6 h-16 flex items-center justify-between gap-6">
-      <Logo href={languages[lang].path} />
-      <div class="flex items-center gap-6">
-        <nav class="hidden sm:flex gap-6 text-sm text-muted">
-          {nav.map((item) => <a href={item.href} class="hover:text-fg transition-colors">{item.label}</a>)}
-        </nav>
-        <LangSwitch lang={lang} />
+<BaseLayout lang={lang} page="resume" title="César Morais" description={profile.summary}>
+  <main class="mx-auto max-w-6xl px-6">
+    <!-- Abertura: nome gigante condensado (lament.tv) e uma faixa de três colunas (righthemisphere.studio) -->
+    <section class="pt-12 pb-12 md:pt-16">
+      <h1 class="display text-[clamp(44px,7vw,96px)]">{profile.name}</h1>
+      <div class="mt-10 grid gap-8 border-t border-line pt-6 md:grid-cols-12 md:gap-10">
+        <p class="label text-muted md:col-span-3">
+          <span class="block text-fg">{profile.headline}</span>
+          {profile.location}
+        </p>
+        <p class="max-w-[52ch] font-serif text-[22px] leading-[1.3] text-fg/90 md:col-span-6">{profile.summary}</p>
+        <ul class="label md:col-span-3">
+          {
+            profile.links.map((link) => (
+              <li class="border-b border-line first:border-t">
+                <a
+                  href={link.href}
+                  target={link.href.startsWith('http') ? '_blank' : undefined}
+                  rel="noopener"
+                  class="flex justify-between py-2.5 text-muted transition-colors hover:text-fg"
+                >
+                  <span>{link.label}</span>
+                  <span aria-hidden="true">↗</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
       </div>
-    </div>
-  </header>
-
-  <main class="mx-auto max-w-3xl px-6">
-    <section class="pt-20 pb-10">
-      <p class="font-pixel text-xs text-accent-light">{t.eyebrow}</p>
-      <h1 class="mt-4 text-4xl sm:text-6xl font-semibold tracking-tight">{profile.name}</h1>
-      <p class="mt-3 text-lg text-muted">
-        {profile.headline} · {profile.location}
-      </p>
-      <p class="mt-8 max-w-2xl text-lg leading-relaxed text-fg/85">{profile.summary}</p>
-      <ul class="mt-8 flex flex-wrap gap-3">
-        {profile.links.map((link) => (
-          <li>
-            <a
-              href={link.href}
-              target={link.href.startsWith('http') ? '_blank' : undefined}
-              rel="noopener"
-              class="font-pixel text-xs inline-block px-4 py-2.5 bg-surface border border-line hover:border-accent hover:text-accent-light transition-colors shadow-[3px_3px_0_rgb(0_0_0/0.6)]"
-            >
-              {link.label} ↗
-            </a>
-          </li>
-        ))}
-      </ul>
     </section>
 
-    <Section id="experience" label={t.workTitle}>
+    <Section id="experience" label={t.work}>
       {experience.map((entry) => <EntryCard entry={entry} />)}
     </Section>
 
@@ -71,46 +56,47 @@ const nav = [
     <Section id="research" label={t.research}>
       {research.map((entry) => <EntryCard entry={entry} />)}
 
-      <h3 class="reveal mt-10 mb-4 text-sm text-muted">{t.publications}</h3>
-      <ul class="space-y-3">
-        {publications.map((pub) => (
-          <li class="reveal flex gap-4 items-baseline">
-            <span class="font-pixel text-xs text-accent-light shrink-0 w-24">{pub.venue} {pub.year}</span>
-            <span class="text-fg/85">{pub.text}</span>
-          </li>
-        ))}
+      <h3 class="label reveal mt-12 mb-1 text-muted">{t.publications}</h3>
+      <ul class="border-t border-line">
+        {
+          publications.map((pub) => (
+            <li class="reveal grid gap-x-6 gap-y-1 border-b border-line py-4 sm:grid-cols-[150px_1fr] sm:items-baseline">
+              <span class="display text-xl text-accent-light">
+                {pub.venue} {pub.year}
+              </span>
+              <span class="text-fg/85">{pub.text}</span>
+            </li>
+          ))
+        }
       </ul>
     </Section>
 
     <Section id="recognition" label={t.recognition}>
-      <ul class="space-y-3 text-fg/85">
-        {recognition.map((item) => (
-          <li class="reveal flex gap-3">
-            <span class="font-pixel text-accent shrink-0">★</span>
-            <span>{item}</span>
-          </li>
-        ))}
+      <ul class="border-t border-line">
+        {
+          recognition.map((item) => (
+            <li class="reveal border-b border-line py-4 font-serif text-[20px] leading-snug text-fg/90">{item}</li>
+          ))
+        }
       </ul>
+      <a href={routes.events[lang]} class="scribble label mt-6 inline-block text-fg">{ui[lang].nav.events} →</a>
     </Section>
 
     <Section id="skills" label={t.skills}>
-      <div class="grid sm:grid-cols-2 gap-8">
-        {skills.map((group) => (
-          <div class="reveal">
-            <h3 class="text-sm text-muted mb-3">{group.group}</h3>
-            <ul class="flex flex-wrap gap-2">
-              {group.items.map((item) => (
-                <li class="text-sm px-2.5 py-1 bg-surface border border-line">{item}</li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-      <p class="mt-10 text-sm text-muted">{spokenLanguages.join(' · ')}</p>
+      <dl class="border-t border-line">
+        {
+          skills.map((group) => (
+            <div class="reveal grid gap-x-6 gap-y-1 border-b border-line py-4 sm:grid-cols-[180px_1fr]">
+              <dt class="label pt-1 text-muted">{group.group}</dt>
+              <dd class="text-fg/90">{group.items.join(' · ')}</dd>
+            </div>
+          ))
+        }
+        <div class="reveal grid gap-x-6 gap-y-1 border-b border-line py-4 sm:grid-cols-[180px_1fr]">
+          <dt class="label pt-1 text-muted">{t.languages}</dt>
+          <dd class="text-fg/90">{spokenLanguages.join(' · ')}</dd>
+        </div>
+      </dl>
     </Section>
   </main>
-
-  <footer class="mx-auto max-w-3xl px-6 py-16 border-t border-line text-sm text-muted">
-    © {new Date().getFullYear()} César Morais
-  </footer>
 </BaseLayout>

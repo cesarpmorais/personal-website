@@ -76,7 +76,7 @@ const resume: Resume = {
 
   recognition: [
     "Selecionado para representar a Hotmart na AI Engineer World's Fair, em São Francisco (2026).",
-    "Palestrante no Hot N'Code (conferência de engenharia da Hotmart) e no KubeAI Forum on AWS (2025).",
+    "Palestrante no Hot N'Code (conferência de engenharia da Hotmart) e no KubeAI Forum on AWS (2026).",
     'Vencedor de um hackathon interno de IA aberto a toda a Hotmart.',
   ],
 

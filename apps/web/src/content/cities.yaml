@@ -1,0 +1,21 @@
+# Cidades onde houve eventos. O id (bh, sp, sf…) é o que vai no campo `city` de cada evento.
+# Para uma cidade nova: adicione um bloco com nome, sigla e coordenadas (lat/lon em graus decimais).
+# O nome pode ser um texto só ou ter versão em inglês e português.
+
+bh:
+  name: Belo Horizonte
+  short: BH
+  lat: -19.9167
+  lon: -43.9345
+
+sp:
+  name: São Paulo
+  short: SP
+  lat: -23.5505
+  lon: -46.6333
+
+sf:
+  name: { en: San Francisco, pt: São Francisco }
+  short: SF
+  lat: 37.7749
+  lon: -122.4194

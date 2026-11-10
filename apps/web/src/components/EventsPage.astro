@@ -1,0 +1,42 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import EventIndex from './EventIndex.astro';
+import EventBlock from './EventBlock.astro';
+import { getEvents } from '../data/events';
+import { ui, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = ui[lang].events;
+const events = await getEvents();
+const isFirstOfYear = (i: number) => i === 0 || events[i].start.slice(0, 4) !== events[i - 1].start.slice(0, 4);
+---
+
+<BaseLayout lang={lang} page="events" title={`${t.title} · César Morais`} description={t.lede}>
+  <main>
+    <EventIndex events={events} lang={lang} />
+
+    {
+      events.map((event, i) => (
+        <>
+          {isFirstOfYear(i) && (
+            // Ano gigante como divisória, como no timeline do McCartney
+            <div class="year mx-auto flex max-w-6xl items-center gap-6 px-6 pt-16 pb-6" aria-hidden="true">
+              <span class="h-px flex-1 bg-accent" />
+              <span class="font-serif text-[clamp(72px,11vw,150px)] leading-[0.8] text-fg/90">{event.start.slice(0, 4)}</span>
+              <span class="h-px flex-1 bg-accent" />
+            </div>
+          )}
+          <EventBlock event={event} lang={lang} eager={i === 0} />
+        </>
+      ))
+    }
+
+    <p class="mx-auto mt-6 max-w-6xl px-6">
+      <a href="#index" class="label scribble text-fg">↑ {t.backToIndex}</a>
+    </p>
+  </main>
+</BaseLayout>

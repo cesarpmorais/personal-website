@@ -10,57 +10,57 @@ const { entry } = Astro.props;
 const { org, roles, advisor, highlights, tags } = entry;
 ---
 
-<article class="grid grid-cols-[44px_1fr] gap-x-5 gap-y-4 py-8 border-t border-line first:border-t-0 first:pt-0">
-  <div class="reveal"><OrgIcon org={org} /></div>
-
-  <div>
-    <header class="reveal">
-      <h3 class="text-lg font-semibold leading-tight">
-        {org.url ? <a href={org.url} class="hover:text-accent-light transition-colors">{org.name}</a> : org.name}
+<article class="border-t border-line py-10 first:border-t-0 first:pt-0">
+  <header class="reveal flex items-center gap-4">
+    <OrgIcon org={org} />
+    <div class="min-w-0">
+      <h3 class="font-serif text-[32px] leading-none">
+        {org.url ? <a href={org.url} target="_blank" rel="noopener" class="transition-colors hover:text-accent-light">{org.name}</a> : org.name}
       </h3>
-      {org.description && <p class="text-sm text-muted">{org.description}</p>}
-    </header>
+      {org.description && <p class="label mt-1.5 text-muted">{org.description}</p>}
+    </div>
+  </header>
 
-    <ul class="reveal mt-4 space-y-2">
-      {roles.map((role) => (
-        <li>
-          <div class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-x-4">
-            <span class="font-medium">{role.title}</span>
-            <span class="font-pixel text-xs text-muted shrink-0">{role.period}</span>
-          </div>
-          {role.note && <p class="text-xs text-accent-light mt-0.5">{role.note}</p>}
-        </li>
-      ))}
-    </ul>
+  <!-- Cargos e períodos em linhas finas, como uma ficha técnica -->
+  <dl class="reveal mt-7 border-t border-line">
+    {
+      roles.map((role) => (
+        <div class="grid gap-x-6 gap-y-1 border-b border-line py-3 sm:grid-cols-[1fr_auto] sm:items-baseline">
+          <dt class="font-medium">
+            {role.title}
+            {role.note && <span class="ml-2 font-serif text-base italic text-accent-light">{role.note}</span>}
+          </dt>
+          <dd class="label text-muted">{role.period}</dd>
+        </div>
+      ))
+    }
+  </dl>
 
-    {advisor && (
-      <p class="reveal mt-2 text-sm text-muted">
+  {
+    advisor && (
+      <p class="reveal mt-3 text-sm text-muted">
         {advisor.label}:{' '}
         {advisor.url ? (
-          <a href={advisor.url} target="_blank" rel="noopener" class="text-fg/85 underline underline-offset-4 decoration-line hover:decoration-accent">
+          <a href={advisor.url} target="_blank" rel="noopener" class="text-fg/85 underline decoration-line underline-offset-4 hover:decoration-accent">
             {advisor.name}
           </a>
         ) : (
           advisor.name
         )}
       </p>
-    )}
+    )
+  }
 
-    <ul class="mt-5 space-y-3 text-[15px] leading-relaxed text-fg/80">
-      {highlights.map((item) => (
-        <li class="reveal flex gap-3">
-          <span class="mt-[0.6em] size-1.5 shrink-0 bg-accent" aria-hidden="true" />
+  <ul class="mt-7 max-w-[68ch] space-y-3.5 text-[15.5px] leading-relaxed text-fg/80">
+    {
+      highlights.map((item) => (
+        <li class="reveal grid grid-cols-[20px_1fr]">
+          <span class="text-accent-light" aria-hidden="true">—</span>
           <span>{item}</span>
         </li>
-      ))}
-    </ul>
+      ))
+    }
+  </ul>
 
-    {tags && (
-      <ul class="reveal mt-5 flex flex-wrap gap-2">
-        {tags.map((tag) => (
-          <li class="text-xs px-2 py-1 bg-surface border border-line text-muted">{tag}</li>
-        ))}
-      </ul>
-    )}
-  </div>
+  {tags && <p class="label reveal mt-7 text-muted">{tags.join(' / ')}</p>}
 </article>
