@@ -1,0 +1,19 @@
+# Sobe o site e o túnel da Cloudflare. Na VM, o deploy é automático (.github/workflows/deploy.yml);
+# na mão: docker compose pull && docker compose up -d
+services:
+  # O site (build do Astro servido pelo Caddy). Sem porta publicada: só o túnel fala com ele.
+  web:
+    # Imagem montada pelo GitHub Actions a cada merge na main. Para voltar a uma versão antiga: troque :latest por :sha-<commit>
+    image: ghcr.io/cesarpmorais/personal-website:latest
+    build: . # só usado se você rodar `docker compose build` localmente
+    restart: unless-stopped
+
+  # Cloudflare Tunnel: conecta para fora até a Cloudflare e entrega cesarpmorais.dev → http://web:80
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN:?Defina TUNNEL_TOKEN no arquivo .env}
+    restart: unless-stopped
+    depends_on:
+      - web

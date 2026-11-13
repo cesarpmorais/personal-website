@@ -1,0 +1,7 @@
+# O build roda dentro do container: nada de dependências ou builds do Mac
+**/node_modules
+**/dist
+**/.astro
+.git
+.claude
+.env
