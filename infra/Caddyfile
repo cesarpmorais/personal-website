@@ -1,0 +1,9 @@
+# O HTTPS é feito pela Cloudflare (o túnel chega aqui por HTTP, dentro da rede do Docker).
+:80 {
+	root * /srv
+	encode zstd gzip
+	file_server
+
+	# Arquivos com hash no nome (CSS, JS, imagens otimizadas) nunca mudam: cache longo
+	header /_astro/* Cache-Control "public, max-age=31536000, immutable"
+}
