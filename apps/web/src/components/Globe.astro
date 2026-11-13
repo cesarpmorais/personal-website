@@ -1,0 +1,356 @@
+---
+// Globo pixelado que serve de índice dos eventos: pontos de terra quadrados e um pino por cidade.
+// Os pontos de terra são calculados no build (não pesam no navegador); o desenho é feito num <canvas>.
+import { feature } from 'topojson-client';
+import { geoContains } from 'd3-geo';
+import landTopo from 'world-atlas/land-110m.json';
+import PixelIcon from './PixelIcon.astro';
+import type { City } from '../data/events';
+import type { Lang } from '../i18n';
+
+interface Props {
+  pins: (City & { count: number })[];
+  lang: Lang;
+  label: (city: string, n: number) => string;
+}
+
+const { pins, lang, label } = Astro.props;
+
+// Grade de pontos com espaçamento parecido em toda a esfera; guarda só os que caem em terra.
+const STEP = 2;
+let landDots: [number, number][] | undefined;
+function getLandDots() {
+  if (landDots) return landDots;
+  const topo = landTopo as any;
+  const land = feature(topo, topo.objects.land) as any;
+  landDots = [];
+  for (let lat = -78; lat <= 82; lat += STEP) {
+    const n = Math.max(1, Math.round((360 * Math.cos((lat * Math.PI) / 180)) / STEP));
+    for (let i = 0; i < n; i++) {
+      const lon = -180 + (i * 360) / n;
+      if (geoContains(land, [lon, lat])) landDots.push([Math.round(lon * 10) / 10, Math.round(lat * 10) / 10]);
+    }
+  }
+  return landDots;
+}
+
+---
+
+<div class="globe" data-globe data-dots={JSON.stringify(getLandDots())} data-pins={JSON.stringify(pins.map(({ id, lat, lon }) => ({ id, lat, lon })))}>
+  <canvas aria-hidden="true"></canvas>
+  {
+    pins.map((pin) => (
+      <button type="button" class="pin" data-pin={pin.id} aria-label={label(pin.name[lang], pin.count)}>
+        <span class="pin-dot" />
+        <span class="pin-label">
+          {pin.short}
+          <sup>{pin.count}</sup>
+          <PixelIcon name={pin.id} class="pin-icon" />
+          {pin.id === 'bh' && <PixelIcon name="cruzeiro-1956" class="pin-shield" />}
+        </span>
+      </button>
+    ))
+  }
+</div>
+
+<style>
+  .globe {
+    position: relative;
+    width: 100%;
+    max-width: 520px;
+    aspect-ratio: 1;
+    margin-inline: auto;
+    touch-action: pan-y;
+    cursor: grab;
+  }
+
+  .globe:active {
+    cursor: grabbing;
+  }
+
+  canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .pin {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    /* Altura fixa no tamanho do quadradinho: o rótulo (mais alto, com o ícone) cresce para cima e
+       para baixo sem empurrar o quadradinho para fora da coordenada da cidade */
+    height: 18px;
+    padding: 0 4px;
+    margin: -9px 0 0 -9px;
+    background: none;
+    border: 0;
+    color: var(--color-fg);
+    cursor: pointer;
+    transition: opacity 200ms;
+  }
+
+  .pin[data-hidden] {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .pin-dot {
+    width: 7px;
+    height: 7px;
+    background: var(--color-accent);
+    box-shadow:
+      0 0 0 2px var(--color-bg),
+      0 0 0 3px var(--color-accent-light);
+  }
+
+  .pin[data-active] .pin-dot {
+    background: var(--color-accent-light);
+    animation: pin-pulse 1.6s ease-out infinite;
+  }
+
+  @keyframes pin-pulse {
+    0% {
+      box-shadow:
+        0 0 0 2px var(--color-bg),
+        0 0 0 3px var(--color-accent-light),
+        0 0 0 3px rgb(144 169 223 / 0.5);
+    }
+    100% {
+      box-shadow:
+        0 0 0 2px var(--color-bg),
+        0 0 0 3px var(--color-accent-light),
+        0 0 0 14px rgb(144 169 223 / 0);
+    }
+  }
+
+  .pin-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-display);
+    font-stretch: 62%;
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 1;
+    background: rgb(11 12 15 / 0.75);
+    padding: 3px 6px 2px;
+  }
+
+  .pin-label sup {
+    font-family: var(--font-sans);
+    font-size: 10px;
+    color: var(--color-accent-light);
+  }
+
+  /* BH e SP ficam no lado leste e pertinho uma da outra: os rótulos vão para a esquerda
+     (sem invadir a coluna de texto). O quadradinho fica sempre na coordenada exata da cidade;
+     só o rótulo se afasta — o de BH um pouco para cima, o de SP um pouco para baixo */
+  .pin[data-pin='bh'],
+  .pin[data-pin='sp'] {
+    flex-direction: row-reverse;
+    translate: calc(-100% + 18px) 0;
+  }
+
+  .pin[data-pin='bh'] .pin-label {
+    translate: 0 -11px;
+  }
+
+  .pin[data-pin='sp'] .pin-label {
+    translate: 0 11px;
+  }
+
+  .pin-label {
+    flex-direction: inherit;
+  }
+
+
+  /* Easter egg: passando o mouse em BH, o escudo antigo do Cruzeiro surge acima da Pampulha */
+  .pin-label {
+    position: relative;
+  }
+
+  /* :global porque o <svg> vem de outro componente (PixelIcon) */
+  .pin :global(.pin-shield) {
+    position: absolute;
+    left: 6px;
+    bottom: calc(100% + 6px);
+    opacity: 0;
+    transform: translateY(8px) scale(0.6);
+    transform-origin: bottom center;
+    transition:
+      opacity 200ms,
+      transform 380ms cubic-bezier(0.34, 1.6, 0.64, 1);
+    pointer-events: none;
+  }
+
+  .pin:hover :global(.pin-shield),
+  .pin:focus-visible :global(.pin-shield) {
+    opacity: 1;
+    transform: none;
+    transition-delay: 250ms;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pin :global(.pin-shield) {
+      transition: none;
+    }
+
+    .pin[data-active] .pin-dot {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  import { geoOrthographic, geoPath, geoGraticule10, geoDistance, geoInterpolate } from 'd3-geo';
+
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  document.querySelectorAll<HTMLElement>('[data-globe]').forEach((root) => {
+    const canvas = root.querySelector('canvas')!;
+    const ctx = canvas.getContext('2d')!;
+    const dots: [number, number][] = JSON.parse(root.dataset.dots!);
+    const pins: { id: string; lat: number; lon: number }[] = JSON.parse(root.dataset.pins!);
+    const pinEls = new Map([...root.querySelectorAll<HTMLElement>('[data-pin]')].map((el) => [el.dataset.pin!, el]));
+    const graticule = geoGraticule10();
+    const css = getComputedStyle(document.documentElement);
+    const color = (name: string, fallback: string) => css.getPropertyValue(name).trim() || fallback;
+    const LINE = color('--color-line', '#23262e');
+    const FG = color('--color-fg', '#e8eaf0');
+
+    // Começa com as três cidades à vista, com o Brasil mais de frente (perto da borda ele fica espremido)
+    let center: [number, number] = [-70, 2];
+    const projection = geoOrthographic().clipAngle(90).precision(0.4);
+    const path = geoPath(projection, ctx);
+    let size = 0;
+    let dpr = 1;
+
+    const resize = () => {
+      dpr = Math.min(2, window.devicePixelRatio || 1);
+      size = root.clientWidth;
+      canvas.width = size * dpr;
+      canvas.height = size * dpr;
+      draw();
+    };
+
+    function draw() {
+      if (!size) return;
+      const r = size / 2 - 8;
+      projection.translate([size / 2, size / 2]).scale(r).rotate([-center[0], -center[1]]);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, size, size);
+
+      // esfera e contorno
+      ctx.beginPath();
+      ctx.arc(size / 2, size / 2, r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(19, 21, 26, 0.85)';
+      ctx.fill();
+      ctx.strokeStyle = LINE;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // meridianos e paralelos bem apagados
+      ctx.beginPath();
+      path(graticule);
+      ctx.strokeStyle = 'rgba(144, 169, 223, 0.07)';
+      ctx.stroke();
+
+      // terra em pontos quadrados, mais fracos perto da borda (dá volume)
+      const cell = Math.max(1.4, r / 130);
+      ctx.fillStyle = FG;
+      for (const dot of dots) {
+        const d = geoDistance(dot, center);
+        if (d > Math.PI / 2 - 0.03) continue;
+        const p = projection(dot);
+        if (!p) continue;
+        ctx.globalAlpha = 0.12 + 0.5 * Math.cos(d);
+        ctx.fillRect(p[0] - cell / 2, p[1] - cell / 2, cell, cell);
+      }
+      ctx.globalAlpha = 1;
+
+      // pinos (botões HTML por cima do canvas)
+      for (const pin of pins) {
+        const el = pinEls.get(pin.id)!;
+        const ll: [number, number] = [pin.lon, pin.lat];
+        const hidden = geoDistance(ll, center) > Math.PI / 2 - 0.08;
+        const p = projection(ll);
+        if (hidden || !p) {
+          el.dataset.hidden = '';
+          continue;
+        }
+        delete el.dataset.hidden;
+        el.style.transform = `translate(${p[0]}px, ${p[1]}px)`;
+      }
+    }
+
+    // Gira suavemente até deixar a cidade no centro
+    let anim = 0;
+    const rotateTo = (target: [number, number]) => {
+      cancelAnimationFrame(anim);
+      if (reduce) {
+        center = target;
+        draw();
+        return;
+      }
+      const interp = geoInterpolate(center, target);
+      const t0 = performance.now();
+      const duration = 900;
+      const step = (t: number) => {
+        const k = Math.min(1, (t - t0) / duration);
+        const ease = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+        center = interp(ease) as [number, number];
+        draw();
+        if (k < 1) anim = requestAnimationFrame(step);
+      };
+      anim = requestAnimationFrame(step);
+    };
+
+    const setActive = (id: string | null) => {
+      pinEls.forEach((el, key) => (key === id ? (el.dataset.active = '') : delete el.dataset.active));
+      document.querySelectorAll<HTMLElement>('[data-city-group]').forEach((g) => {
+        g.toggleAttribute('data-active', g.dataset.cityGroup === id);
+      });
+    };
+
+    // Foco vindo da lista de cidades (passar o mouse ou clicar)
+    document.addEventListener('city-focus', (e) => {
+      const id = (e as CustomEvent<string>).detail;
+      const pin = pins.find((p) => p.id === id);
+      if (!pin) return;
+      setActive(id);
+      rotateTo([pin.lon, pin.lat]);
+    });
+
+    pinEls.forEach((el, id) =>
+      el.addEventListener('click', () => {
+        document.dispatchEvent(new CustomEvent('city-focus', { detail: id }));
+        document.querySelector(`[data-city-group="${id}"]`)?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'nearest' });
+      }),
+    );
+
+    // Arrastar para girar
+    let drag: { x: number; y: number; c: [number, number] } | null = null;
+    canvas.addEventListener('pointerdown', (e) => {
+      cancelAnimationFrame(anim);
+      drag = { x: e.clientX, y: e.clientY, c: [...center] as [number, number] };
+      canvas.setPointerCapture(e.pointerId);
+    });
+    canvas.addEventListener('pointermove', (e) => {
+      if (!drag) return;
+      const k = 180 / size;
+      center = [drag.c[0] - (e.clientX - drag.x) * k, Math.max(-70, Math.min(70, drag.c[1] + (e.clientY - drag.y) * k))];
+      draw();
+    });
+    const end = () => (drag = null);
+    canvas.addEventListener('pointerup', end);
+    canvas.addEventListener('pointercancel', end);
+
+    new ResizeObserver(resize).observe(root);
+    resize();
+  });
+</script>

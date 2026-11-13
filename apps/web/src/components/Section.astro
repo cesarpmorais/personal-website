@@ -1,0 +1,16 @@
+---
+interface Props {
+  id: string;
+  label: string;
+}
+
+const { id, label } = Astro.props;
+---
+
+<!-- Título fixo à esquerda enquanto o conteúdo rola à direita -->
+<section id={id} class="grid scroll-mt-20 gap-6 border-t border-line py-12 lg:grid-cols-12 lg:gap-10">
+  <h2 class="display self-start text-[28px] text-fg lg:sticky lg:top-24 lg:col-span-3">{label}</h2>
+  <div class="min-w-0 lg:col-span-9">
+    <slot />
+  </div>
+</section>

@@ -1,0 +1,23 @@
+---
+import type { Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const links = [
+  { label: 'GitHub', href: 'https://github.com/cesarpmorais' },
+  { label: 'LinkedIn', href: 'https://linkedin.com/in/cesarpmorais' },
+];
+---
+
+<footer class="mx-auto mt-24 max-w-6xl border-t border-line px-6 pt-10 pb-12">
+  <p class="display text-[clamp(40px,7vw,88px)] text-fg/90" aria-hidden="true">César Morais</p>
+  <div class="label mt-8 flex flex-wrap justify-between gap-4 text-muted">
+    <span>© {new Date().getFullYear()} · Belo Horizonte, {lang === 'pt' ? 'Brasil' : 'Brazil'}</span>
+    <span class="flex gap-6">
+      {links.map((l) => <a href={l.href} target="_blank" rel="noopener" class="hover:text-fg">{l.label} ↗</a>)}
+    </span>
+  </div>
+</footer>

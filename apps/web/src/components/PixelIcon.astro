@@ -1,0 +1,30 @@
+---
+// Pixel art (Pampulha, São Paulo, Golden Gate, escudo do Cruzeiro), 2px por pixel, sem suavização.
+import { pixelIcons } from '../data/pixel-icons';
+
+interface Props {
+  /** Id do desenho em src/data/pixel-icons.ts (a cidade ou 'cruzeiro-1956'). */
+  name: string;
+  class?: string;
+}
+
+const { name, class: className } = Astro.props;
+const icon = pixelIcons[name];
+const { rows = [], palette = {}, label = '' } = icon ?? {};
+const width = Math.max(...rows.map((r) => r.length));
+const pixels = rows.flatMap((row, y) => [...row].flatMap((c, x) => (palette[c] ? [{ x, y, fill: palette[c] }] : [])));
+---
+
+{icon && (
+<svg
+  class:list={['pixel-icon', className]}
+  viewBox={`0 0 ${width} ${rows.length}`}
+  width={width * 2}
+  height={rows.length * 2}
+  shape-rendering="crispEdges"
+  role="img"
+  aria-label={label}
+>
+  {pixels.map((p) => <rect x={p.x} y={p.y} width="1" height="1" fill={p.fill} />)}
+</svg>
+)}

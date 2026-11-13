@@ -1,0 +1,68 @@
+---
+// Data escrita à mão e circulada em azul, como no timeline do McCartney. O traço se desenha ao entrar na tela.
+interface Props {
+  text: string;
+}
+
+const { text } = Astro.props;
+---
+
+<span class="circled">
+  <svg viewBox="0 0 120 50" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M10 30 C 6 9, 104 1, 113 22 C 120 41, 31 51, 12 37 C 3 29, 19 11, 42 9" pathLength="1" />
+  </svg>
+  <span class="circled-text">{text}</span>
+</span>
+
+<style>
+  .circled {
+    position: relative;
+    display: inline-block;
+    padding: 2px 16px 4px;
+    rotate: -3deg;
+  }
+
+  .circled svg {
+    position: absolute;
+    inset: -4px -6px;
+    width: calc(100% + 12px);
+    height: calc(100% + 8px);
+    overflow: visible;
+  }
+
+  .circled path {
+    fill: none;
+    stroke: var(--color-accent-light);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .circled-text {
+    position: relative;
+    font-family: var(--font-hand);
+    font-size: 26px;
+    line-height: 1;
+    color: var(--color-accent-light);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .circled path {
+        stroke-dasharray: 1;
+        animation: circle-draw linear both;
+        animation-timeline: view();
+        animation-range: entry 20% cover 35%;
+      }
+    }
+  }
+
+  @keyframes circle-draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+</style>

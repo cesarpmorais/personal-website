@@ -1,0 +1,173 @@
+---
+// Pilha de polaroids: cada clique manda a foto de cima para o fundo. Uma foto por vez, deixando claro que tem mais.
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  photos: ImageMetadata[];
+  alt: string;
+  caption: string;
+  nextLabel: string;
+  eager?: boolean;
+}
+
+const { photos, alt, caption, nextLabel, eager = false } = Astro.props;
+const many = photos.length > 1;
+// Inclinação inicial por posição: a pilha parece jogada na mesa, mas igual a cada visita.
+const tilts = [-2.5, 3, -4, 1.5, -1, 4.5];
+---
+
+<div
+  class="photo-stack"
+  data-photo-stack={many ? '' : undefined}
+  role={many ? 'button' : undefined}
+  tabindex={many ? 0 : undefined}
+  aria-label={many ? nextLabel : undefined}
+>
+  {
+    photos.map((photo, i) => (
+      <figure class="ps-card" data-tilt={tilts[i % tilts.length]} style={`z-index: ${photos.length - i}; transform: translate(${i * 5}px, ${i * 4}px) rotate(${tilts[i % tilts.length]}deg)`}>
+        <Image
+          src={photo}
+          alt={`${alt} — ${i + 1}/${photos.length}`}
+          widths={[480, 800, 1100]}
+          sizes="(min-width: 768px) 38vw, 88vw"
+          loading={eager && i === 0 ? 'eager' : 'lazy'}
+          class="ps-img"
+        />
+        <figcaption class="ps-cap">
+          <span>{caption}</span>
+          {many && <span>{i + 1}/{photos.length}</span>}
+        </figcaption>
+      </figure>
+    ))
+  }
+</div>
+
+<style>
+  .photo-stack {
+    position: relative;
+    /* A pilha é uma camada própria acima da coluna de texto: a foto que sai voando passa por cima
+       dos chips e links ao lado (e continua abaixo da barra fixa do evento, que tem z-index 10) */
+    isolation: isolate;
+    z-index: 2;
+    width: min(100%, 460px);
+    aspect-ratio: 1 / 1.16;
+    margin-inline: auto;
+  }
+
+  .photo-stack[data-photo-stack] {
+    cursor: pointer;
+  }
+
+  .ps-card {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 12px 12px 52px;
+    background: #f3eee1;
+    box-shadow: 0 18px 40px -12px rgb(0 0 0 / 0.65);
+    will-change: transform;
+  }
+
+  /* As de baixo ficam um pouco mais escuras: a pilha ganha profundidade */
+  .ps-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgb(11 12 15 / var(--shade, 0));
+    pointer-events: none;
+    transition: background 500ms;
+  }
+
+  .ps-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    background: #1a1d24;
+  }
+
+  .ps-cap {
+    position: absolute;
+    left: 16px;
+    right: 18px;
+    bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-hand);
+    font-size: 24px;
+    line-height: 1.2;
+    color: #2b2b2b;
+  }
+</style>
+
+<script>
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Posição de descanso de cada profundidade na pilha
+  const rest = (depth: number, tilt: number) => `translate(${depth * 5}px, ${depth * 4}px) rotate(${tilt}deg)`;
+  // Uma inclinação nova a cada volta, para a pilha não ficar mecânica
+  const randomTilt = () => Math.round((Math.random() * 9 - 4.5) * 10) / 10;
+
+  document.querySelectorAll<HTMLElement>('[data-photo-stack]').forEach((stack) => {
+    let cards = [...stack.querySelectorAll<HTMLElement>('.ps-card')];
+    const tiltOf = (card: HTMLElement) => Number(card.dataset.tilt);
+    let lastClick = 0;
+
+    const settle = () =>
+      cards.forEach((card, depth) => {
+        card.style.zIndex = String(cards.length - depth);
+        card.style.transform = rest(depth, tiltOf(card));
+        card.style.setProperty('--shade', String(Math.min(0.35, depth * 0.12)));
+      });
+
+    const next = () => {
+      if (cards.length < 2) return;
+      // Clique antes de a animação acabar: termina a atual na hora e a próxima sai mais rápida
+      const now = performance.now();
+      const speed = now - lastClick < 450 ? 0.55 : 1;
+      lastClick = now;
+      cards.forEach((card) => card.getAnimations().forEach((a) => a.finish()));
+
+      const [top, ...others] = cards;
+      const oldTilt = tiltOf(top);
+      top.dataset.tilt = String(randomTilt());
+      cards = [...others, top];
+      settle();
+      if (reduce) return;
+
+      const lastDepth = cards.length - 1;
+      const high = String(cards.length + 1);
+      const out = `translate(70%, -12%) rotate(${oldTilt + 13}deg) scale(1.04)`;
+      // A de cima levanta, sai em arco para o lado, passa para trás e assenta no fundo — numa animação só
+      top.animate(
+        [
+          { transform: rest(0, oldTilt), zIndex: high, boxShadow: '0 18px 40px -12px rgb(0 0 0 / 0.65)' },
+          { transform: out, zIndex: high, boxShadow: '0 40px 70px -18px rgb(0 0 0 / 0.75)', offset: 0.42 },
+          { transform: out, zIndex: '0', offset: 0.43 },
+          { transform: rest(lastDepth, tiltOf(top)), zIndex: '0' },
+        ],
+        { duration: 560 * speed, easing: 'cubic-bezier(.3,.6,.25,1)' },
+      );
+      // As outras sobem uma posição, uma de cada vez, com um leve quique
+      others.forEach((card, i) =>
+        card.animate([{ transform: rest(i + 1, tiltOf(card)) }, { transform: rest(i, tiltOf(card)) }], {
+          duration: 380 * speed,
+          delay: (120 + i * 40) * speed,
+          easing: 'cubic-bezier(.34,1.45,.64,1)',
+          fill: 'backwards',
+        }),
+      );
+    };
+
+    settle();
+    stack.addEventListener('click', next);
+    stack.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        next();
+      }
+    });
+  });
+</script>

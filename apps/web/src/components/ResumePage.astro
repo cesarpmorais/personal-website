@@ -1,0 +1,102 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Section from './Section.astro';
+import EntryCard from './EntryCard.astro';
+import { resumes } from '../data/resume';
+import { routes, ui, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = ui[lang].resume;
+const { profile, experience, education, research, publications, recognition, skills, spokenLanguages } = resumes[lang];
+---
+
+<BaseLayout lang={lang} page="resume" title="César Morais" description={profile.summary}>
+  <main class="mx-auto max-w-6xl px-6">
+    <!-- Abertura: nome gigante condensado (lament.tv) e uma faixa de três colunas (righthemisphere.studio) -->
+    <section class="pt-12 pb-12 md:pt-16">
+      <h1 class="display text-[clamp(44px,7vw,96px)]">{profile.name}</h1>
+      <div class="mt-10 grid gap-8 border-t border-line pt-6 md:grid-cols-12 md:gap-10">
+        <p class="label text-muted md:col-span-3">
+          <span class="block text-fg">{profile.headline}</span>
+          {profile.location}
+        </p>
+        <p class="max-w-[52ch] font-serif text-[22px] leading-[1.3] text-fg/90 md:col-span-6">{profile.summary}</p>
+        <ul class="label md:col-span-3">
+          {
+            profile.links.map((link) => (
+              <li class="border-b border-line first:border-t">
+                <a
+                  href={link.href}
+                  target={link.href.startsWith('http') ? '_blank' : undefined}
+                  rel="noopener"
+                  class="flex justify-between py-2.5 text-muted transition-colors hover:text-fg"
+                >
+                  <span>{link.label}</span>
+                  <span aria-hidden="true">↗</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <Section id="experience" label={t.work}>
+      {experience.map((entry) => <EntryCard entry={entry} />)}
+    </Section>
+
+    <Section id="education" label={t.education}>
+      {education.map((entry) => <EntryCard entry={entry} />)}
+    </Section>
+
+    <Section id="research" label={t.research}>
+      {research.map((entry) => <EntryCard entry={entry} />)}
+
+      <h3 class="label reveal mt-12 mb-1 text-muted">{t.publications}</h3>
+      <ul class="border-t border-line">
+        {
+          publications.map((pub) => (
+            <li class="reveal grid gap-x-6 gap-y-1 border-b border-line py-4 sm:grid-cols-[150px_1fr] sm:items-baseline">
+              <span class="display text-xl text-accent-light">
+                {pub.venue} {pub.year}
+              </span>
+              <span class="text-fg/85">{pub.text}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </Section>
+
+    <Section id="recognition" label={t.recognition}>
+      <ul class="border-t border-line">
+        {
+          recognition.map((item) => (
+            <li class="reveal border-b border-line py-4 font-serif text-[20px] leading-snug text-fg/90">{item}</li>
+          ))
+        }
+      </ul>
+      <a href={routes.events[lang]} class="scribble label mt-6 inline-block text-fg">{ui[lang].nav.events} →</a>
+    </Section>
+
+    <Section id="skills" label={t.skills}>
+      <dl class="border-t border-line">
+        {
+          skills.map((group) => (
+            <div class="reveal grid gap-x-6 gap-y-1 border-b border-line py-4 sm:grid-cols-[180px_1fr]">
+              <dt class="label pt-1 text-muted">{group.group}</dt>
+              <dd class="text-fg/90">{group.items.join(' · ')}</dd>
+            </div>
+          ))
+        }
+        <div class="reveal grid gap-x-6 gap-y-1 border-b border-line py-4 sm:grid-cols-[180px_1fr]">
+          <dt class="label pt-1 text-muted">{t.languages}</dt>
+          <dd class="text-fg/90">{spokenLanguages.join(' · ')}</dd>
+        </div>
+      </dl>
+    </Section>
+  </main>
+</BaseLayout>

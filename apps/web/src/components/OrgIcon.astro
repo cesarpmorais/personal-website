@@ -1,0 +1,23 @@
+---
+import { Image } from 'astro:assets';
+import type { Org } from '../data/resume';
+
+interface Props {
+  org: Org;
+}
+
+const { org } = Astro.props;
+---
+
+{
+  org.logo ? (
+    <div class="grid size-11 shrink-0 place-items-center bg-white p-1.5 ring-1 ring-line">
+      {/* O Astro gera uma versão otimizada (WebP, tamanho certo para telas retina) no build */}
+      <Image src={org.logo} alt={org.name} width={64} densities={[1, 2]} class="size-full object-contain" />
+    </div>
+  ) : (
+    <div class="display grid size-11 shrink-0 place-items-center text-2xl text-white" style={{ backgroundColor: org.color }} aria-hidden="true">
+      {org.mark}
+    </div>
+  )
+}

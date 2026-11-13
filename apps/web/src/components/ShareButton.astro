@@ -1,0 +1,72 @@
+---
+// Botão discreto de compartilhar um evento: usa o menu de compartilhar do sistema (celular) ou copia o link.
+interface Props {
+  slug: string;
+  title: string;
+  label: string;
+  copiedLabel: string;
+}
+
+const { slug, title, label, copiedLabel } = Astro.props;
+---
+
+<button type="button" class="share label" data-share={slug} data-share-title={title} data-copied={copiedLabel}>
+  <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true">
+    <path d="M6.5 9.5 9.5 6.5M7 4.5l1.2-1.2a2.8 2.8 0 0 1 4 4L11 8.5M9 11.5l-1.2 1.2a2.8 2.8 0 0 1-4-4L5 7.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+  </svg>
+  <span data-share-text>{label}</span>
+</button>
+
+<style>
+  .share {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--color-muted);
+    background: none;
+    border: 0;
+    padding: 4px 0;
+    cursor: pointer;
+    transition: color 150ms;
+  }
+
+  .share:hover {
+    color: var(--color-fg);
+  }
+
+  .share[data-done] {
+    color: var(--color-accent-light);
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-share]').forEach((button) => {
+    const text = button.querySelector('[data-share-text]')!;
+    const original = text.textContent;
+
+    button.addEventListener('click', async () => {
+      const url = new URL(`#${button.dataset.share}`, location.href.split('#')[0]).href;
+      // No celular, abre o menu de compartilhar do sistema
+      if (navigator.share && matchMedia('(pointer: coarse)').matches) {
+        try {
+          await navigator.share({ title: button.dataset.shareTitle, url });
+          return;
+        } catch {
+          // cancelado pelo usuário: cai no copiar
+        }
+      }
+      try {
+        await navigator.clipboard.writeText(url);
+        text.textContent = button.dataset.copied ?? 'Copied';
+        button.dataset.done = '';
+        history.replaceState(null, '', `#${button.dataset.share}`);
+        setTimeout(() => {
+          text.textContent = original;
+          delete button.dataset.done;
+        }, 1800);
+      } catch {
+        location.hash = button.dataset.share!;
+      }
+    });
+  });
+</script>

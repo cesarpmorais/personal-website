@@ -1,0 +1,85 @@
+---
+// Chip de papel no evento: bloco pixelado com cantos em degrau, chanfro e textura de impressão antiga.
+import { roleLabels, type Role } from '../data/events';
+import type { Lang } from '../i18n';
+
+interface Props {
+  role: Role;
+  lang: Lang;
+}
+
+const { role, lang } = Astro.props;
+
+// Ícones de 7×7 pixels (X = aceso): microfone, ingresso, bandeira e estrela.
+const icons: Record<Role, string[]> = {
+  speaker: ['..XXX..', '..XXX..', '..XXX..', 'X.XXX.X', 'X.....X', '.XXXXX.', '...X...'],
+  participant: ['.......', 'XXXXXXX', 'XX.X.XX', 'X.....X', 'XX.X.XX', 'XXXXXXX', '.......'],
+  organizer: ['XXXXX..', 'XXXXXXX', 'XXXXXX.', 'X......', 'X......', 'X......', 'X......'],
+  winner: ['...X...', '..XXX..', 'XXXXXXX', '.XXXXX.', '..XXX..', '.XX.XX.', 'X.....X'],
+};
+
+const pixels = icons[role].flatMap((row, y) => [...row].map((c, x) => (c === 'X' ? { x, y } : null)).filter(Boolean)) as {
+  x: number;
+  y: number;
+}[];
+---
+
+<span class={`role-chip role-${role}`}>
+  <svg viewBox="0 0 7 7" width="7" height="7" aria-hidden="true" shape-rendering="crispEdges">
+    {pixels.map((p) => <rect x={p.x} y={p.y} width="1" height="1" />)}
+  </svg>
+  {roleLabels[role][lang]}
+</span>
+
+<style>
+  .role-chip {
+    --chip-bg: var(--color-accent);
+    --chip-fg: #f1ead8;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 9px 5px;
+    font-family: var(--font-pixel);
+    font-size: 10px;
+    line-height: 1;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--chip-fg);
+    /* textura pontilhada (dither) por cima da cor, como impressão antiga */
+    background:
+      repeating-conic-gradient(rgb(0 0 0 / 0.09) 0 25%, transparent 0 50%) 0 0 / 2px 2px,
+      var(--chip-bg);
+    /* chanfro: luz em cima/esquerda, sombra embaixo/direita */
+    box-shadow:
+      inset 2px 2px 0 rgb(255 255 255 / 0.22),
+      inset -2px -2px 0 rgb(0 0 0 / 0.28);
+    /* cantos em degrau de 2px */
+    clip-path: polygon(
+      0 2px, 2px 2px, 2px 0, calc(100% - 2px) 0, calc(100% - 2px) 2px, 100% 2px,
+      100% calc(100% - 2px), calc(100% - 2px) calc(100% - 2px), calc(100% - 2px) 100%,
+      2px 100%, 2px calc(100% - 2px), 0 calc(100% - 2px)
+    );
+  }
+
+  .role-chip svg {
+    flex: none;
+    fill: currentColor;
+    width: 7px;
+    height: 7px;
+  }
+
+  .role-participant {
+    --chip-bg: var(--color-paper);
+    --chip-fg: #1b1d22;
+  }
+
+  .role-organizer {
+    --chip-bg: var(--color-steel);
+  }
+
+  .role-winner {
+    --chip-bg: var(--color-ochre);
+    --chip-fg: #1b1d22;
+  }
+</style>

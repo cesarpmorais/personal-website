@@ -1,0 +1,39 @@
+---
+import { languages, routes, ui, type Lang, type Page } from '../i18n';
+
+interface Props {
+  lang: Lang;
+  page: Page;
+}
+
+const { lang, page } = Astro.props;
+const langs = Object.keys(languages) as Lang[];
+---
+
+<nav aria-label={ui[lang].switchLabel} class="label flex items-center gap-1.5">
+  {
+    langs.map((key, i) => (
+      <>
+        {i > 0 && <span class="text-line" aria-hidden="true">/</span>}
+        <a
+          href={routes[page][key]}
+          hreflang={languages[key].htmlLang}
+          data-lang-link
+          aria-current={key === lang ? 'true' : undefined}
+          class:list={['transition-colors', key === lang ? 'text-fg' : 'text-muted hover:text-fg']}
+        >
+          {languages[key].label}
+        </a>
+      </>
+    ))
+  }
+</nav>
+
+<script>
+  // Mantém o evento aberto (#slug) ao trocar de idioma.
+  document.querySelectorAll<HTMLAnchorElement>('[data-lang-link]').forEach((link) => {
+    link.addEventListener('click', () => {
+      if (location.hash) link.hash = location.hash;
+    });
+  });
+</script>

@@ -1,0 +1,81 @@
+---
+// Índice da página de eventos: o globo e, ao lado, os eventos agrupados por cidade.
+import Globe from './Globe.astro';
+import { coords, dateStamp, type City, type EventItem } from '../data/events';
+import { ui, type Lang } from '../i18n';
+
+interface Props {
+  events: EventItem[];
+  lang: Lang;
+}
+
+const { events, lang } = Astro.props;
+const t = ui[lang].events;
+
+// Cidades com eventos, da que tem mais para a que tem menos
+const byCity = new Map<string, { city: City; items: EventItem[] }>();
+for (const e of events) {
+  const group = byCity.get(e.city.id) ?? { city: e.city, items: [] };
+  group.items.push(e);
+  byCity.set(e.city.id, group);
+}
+const groups = [...byCity.values()].map((g) => ({ id: g.city.id, ...g })).sort((a, b) => b.items.length - a.items.length);
+
+// O pino usa a posição de exibição da cidade (cities.yaml → pin), se houver
+const pins = groups.map((g) => ({ ...g.city, ...(g.city.pin ?? {}), count: g.items.length }));
+const years = [...new Set(events.map((e) => e.start.slice(0, 4)))].sort();
+---
+
+<section id="index" class="mx-auto grid max-w-6xl scroll-mt-16 gap-12 px-6 pt-14 pb-20 md:grid-cols-12 md:gap-10 md:pt-20">
+  <div class="md:col-span-6">
+    <Globe pins={pins} lang={lang} label={(city, n) => `${city}: ${t.eventsCount(n)}`} />
+  </div>
+
+  <div class="min-w-0 md:col-span-6">
+    <p class="label text-muted">{t.eyebrow} · {years[0]}—{years.at(-1)}</p>
+    <h1 class="display mt-3 text-[clamp(44px,7vw,96px)]">{t.title}</h1>
+    <p class="mt-5 max-w-[46ch] font-serif text-[20px] leading-snug text-fg/85">{t.lede}</p>
+
+    <div class="mt-12 border-t border-line">
+      {
+        groups.map((g) => (
+          <div class="city-group border-b border-line py-5" data-city-group={g.id}>
+            <button type="button" class="flex w-full items-baseline justify-between gap-4 text-left" data-city-btn={g.id}>
+              <span class="display text-[clamp(28px,3.4vw,40px)] transition-colors">
+                {g.city.name[lang]}
+                <sup class="ml-1 font-sans text-sm font-normal text-accent-light">{g.items.length}</sup>
+              </span>
+              <span class="label hidden shrink-0 text-muted sm:block">{coords(g.city)}</span>
+            </button>
+            <ol class="mt-3">
+              {g.items.map((e) => (
+                <li>
+                  <a href={`#${e.slug}`} class="group grid grid-cols-[96px_1fr] items-baseline gap-4 py-1.5 sm:grid-cols-[124px_1fr]">
+                    <span class="label text-muted">{dateStamp(e)}</span>
+                    <span class="text-fg/85 transition-colors group-hover:text-accent-light">{e.name[lang]}</span>
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .city-group[data-active] .display {
+    color: var(--color-accent-light);
+  }
+</style>
+
+<script>
+  // Passar o mouse ou clicar numa cidade gira o globo até ela
+  document.querySelectorAll<HTMLElement>('[data-city-btn]').forEach((btn) => {
+    const focus = () => document.dispatchEvent(new CustomEvent('city-focus', { detail: btn.dataset.cityBtn }));
+    btn.addEventListener('click', focus);
+    btn.addEventListener('focus', focus);
+    btn.closest('[data-city-group]')?.addEventListener('pointerenter', focus);
+  });
+</script>
