@@ -1,0 +1,165 @@
+---
+// Faixa de "ouvir" dos episódios de podcast: botão de play pixelado (no estilo dos chips),
+// barrinhas de áudio que se animam no hover e o link da página do episódio ao lado.
+import { ui, type Lang } from '../i18n';
+import type { EventItem } from '../data/events';
+
+interface Props {
+  podcast: NonNullable<EventItem['podcast']>;
+  lang: Lang;
+}
+
+const { podcast: p, lang } = Astro.props;
+const t = ui[lang].events;
+const meta = `${p.show} · EP ${p.episode} · ${p.minutes} min`;
+
+// Triângulo de play em 7×7 pixels
+const play = ['X......', 'XXX....', 'XXXXX..', 'XXXXXXX', 'XXXXX..', 'XXX....', 'X......'];
+const pixels = play.flatMap((row, y) => [...row].flatMap((c, x) => (c === 'X' ? [{ x, y }] : [])));
+---
+
+<div class="listen">
+  <a class="listen-main" href={p.spotify} target="_blank" rel="noopener" aria-label={`${t.listen}: ${meta}`}>
+    <span class="play" aria-hidden="true">
+      <svg viewBox="0 0 7 7" shape-rendering="crispEdges">
+        {pixels.map((px) => <rect x={px.x} y={px.y} width="1" height="1" />)}
+      </svg>
+    </span>
+    <span class="listen-text">
+      <span class="display listen-title">{t.listen}</span>
+      <span class="label listen-meta">{meta}</span>
+    </span>
+    <span class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+    <span class="arrow" aria-hidden="true">↗</span>
+  </a>
+  {
+    p.page && (
+      <a class="scribble label" href={p.page} target="_blank" rel="noopener">
+        {t.episodePage} ↗
+      </a>
+    )
+  }
+</div>
+
+<style>
+  .listen {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px 24px;
+    margin-top: 2.25rem;
+  }
+
+  .listen-main {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    align-items: center;
+    gap: 14px;
+    min-width: min(100%, 340px);
+    padding: 12px 16px 12px 12px;
+    border: 1px solid var(--color-line);
+    background: rgb(19 21 26 / 0.8);
+    transition:
+      border-color 150ms,
+      translate 150ms,
+      box-shadow 150ms;
+  }
+
+  /* No hover a faixa "levanta" com uma sombra sólida azul, no mesmo espírito blocky dos chips */
+  .listen-main:hover,
+  .listen-main:focus-visible {
+    border-color: var(--color-accent-light);
+    translate: -2px -2px;
+    box-shadow: 4px 4px 0 var(--color-accent);
+  }
+
+  .play {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    color: #f1ead8;
+    background:
+      repeating-conic-gradient(rgb(0 0 0 / 0.09) 0 25%, transparent 0 50%) 0 0 / 2px 2px,
+      var(--color-accent);
+    box-shadow:
+      inset 2px 2px 0 rgb(255 255 255 / 0.22),
+      inset -2px -2px 0 rgb(0 0 0 / 0.28);
+    clip-path: polygon(
+      0 2px, 2px 2px, 2px 0, calc(100% - 2px) 0, calc(100% - 2px) 2px, 100% 2px,
+      100% calc(100% - 2px), calc(100% - 2px) calc(100% - 2px), calc(100% - 2px) 100%,
+      2px 100%, 2px calc(100% - 2px), 0 calc(100% - 2px)
+    );
+  }
+
+  .play svg {
+    width: 14px;
+    height: 14px;
+    margin-left: 3px;
+    fill: currentColor;
+  }
+
+  .listen-text {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .listen-title {
+    font-size: 24px;
+    line-height: 1;
+  }
+
+  .listen-meta {
+    color: var(--color-muted);
+  }
+
+  .arrow {
+    color: var(--color-muted);
+    transition: color 150ms;
+  }
+
+  .listen-main:hover .arrow {
+    color: var(--color-accent-light);
+  }
+
+  /* Barrinhas de áudio: paradas e baixinhas; dançam quando o mouse passa */
+  .bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 18px;
+  }
+
+  .bars i {
+    width: 3px;
+    height: 100%;
+    background: var(--color-accent-light);
+    transform-origin: bottom;
+    transform: scaleY(0.3);
+  }
+
+  .bars i:nth-child(2) { transform: scaleY(0.6); }
+  .bars i:nth-child(3) { transform: scaleY(0.45); }
+  .bars i:nth-child(4) { transform: scaleY(0.25); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .listen-main:hover .bars i,
+    .listen-main:focus-visible .bars i {
+      animation: eq 0.9s ease-in-out infinite alternate;
+    }
+
+    .listen-main:hover .bars i:nth-child(2) { animation-delay: -0.3s; }
+    .listen-main:hover .bars i:nth-child(3) { animation-delay: -0.6s; }
+    .listen-main:hover .bars i:nth-child(4) { animation-delay: -0.15s; }
+  }
+
+  @keyframes eq {
+    from {
+      transform: scaleY(0.2);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+</style>

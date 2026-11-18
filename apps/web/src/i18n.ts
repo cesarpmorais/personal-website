@@ -31,7 +31,7 @@ export const ui = {
     },
     events: {
       title: 'Events',
-      eyebrow: 'Talks, conferences & meetups',
+      eyebrow: 'Talks, conferences, meetups & podcasts',
       lede: "Stages and crowds I've been in, from BH to the world.",
       index: 'Where',
       eventsCount: (n: number) => `${n} ${n === 1 ? 'event' : 'events'}`,
@@ -44,6 +44,9 @@ export const ui = {
       photo: (i: number, n: number) => `Photo ${i} of ${n}`,
       nextPhoto: 'Next photo',
       backToIndex: 'Back to the map',
+      released: 'Released',
+      listen: 'Listen on Spotify',
+      episodePage: 'Episode page',
     },
   },
   pt: {
@@ -61,7 +64,7 @@ export const ui = {
     },
     events: {
       title: 'Eventos',
-      eyebrow: 'Palestras, conferências e meetups',
+      eyebrow: 'Palestras, conferências, meetups e podcasts',
       lede: 'Palcos e plateias por onde passei, de BH ao mundo.',
       index: 'Onde',
       eventsCount: (n: number) => `${n} ${n === 1 ? 'evento' : 'eventos'}`,
@@ -74,6 +77,9 @@ export const ui = {
       photo: (i: number, n: number) => `Foto ${i} de ${n}`,
       nextPhoto: 'Próxima foto',
       backToIndex: 'Voltar ao mapa',
+      released: 'Lançado em',
+      listen: 'Ouvir no Spotify',
+      episodePage: 'Página do episódio',
     },
   },
 };

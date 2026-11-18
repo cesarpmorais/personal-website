@@ -24,7 +24,17 @@ const events = defineCollection({
     end: z.coerce.date().optional(),
     city: z.string(),
     venue: text.optional(),
-    roles: z.array(z.enum(['speaker', 'participant', 'organizer', 'winner'])).min(1),
+    roles: z.array(z.enum(['speaker', 'participant', 'organizer', 'winner', 'guest'])).min(1),
+    /** Episódio de podcast: a data vira "Lançado em" e aparece a faixa "Ouvir no Spotify". */
+    podcast: z
+      .object({
+        show: z.string(),
+        episode: z.number(),
+        minutes: z.number(),
+        spotify: z.string().url(),
+        page: z.string().url().optional(),
+      })
+      .optional(),
     with: z.array(z.string()).optional(),
     links: z.array(z.object({ label: text, url: z.string().url() })).default([]),
   }),
