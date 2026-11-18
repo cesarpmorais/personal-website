@@ -27,7 +27,13 @@ start: 2026-11-24                 # AAAA-MM-DD
 end: 2026-11-27                   # opcional, para eventos de vários dias
 city: bh
 venue: { en: Hotmart HQ, pt: Sede da Hotmart }   # opcional
-roles: [speaker]                  # speaker, participant, organizer, winner (um ou mais)
+roles: [speaker]                  # speaker, participant, organizer, winner, guest (um ou mais)
+podcast:                          # opcional, só para episódios de podcast: a data vira "Lançado em"
+  show: Pod&Dev                   # e aparece a faixa "Ouvir no Spotify"
+  episode: 135
+  minutes: 45
+  spotify: https://open.spotify.com/episode/...
+  page: https://...               # opcional: página do episódio
 with: [Nome de quem dividiu o palco]             # opcional
 links:                            # opcional
   - label: { en: Event page, pt: Página do evento }

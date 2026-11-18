@@ -7,13 +7,14 @@ import type { Lang } from '../i18n';
 
 type Text = Record<Lang, string>;
 
-export type Role = 'speaker' | 'participant' | 'organizer' | 'winner';
+export type Role = 'speaker' | 'participant' | 'organizer' | 'winner' | 'guest';
 
 export const roleLabels: Record<Role, Text> = {
   speaker: { en: 'Speaker', pt: 'Speaker' },
   participant: { en: 'Attendee', pt: 'Participante' },
   organizer: { en: 'Host', pt: 'Organizador' },
   winner: { en: '1st place', pt: '1º lugar' },
+  guest: { en: 'Guest', pt: 'Convidado' },
 };
 
 export interface City {
@@ -33,6 +34,8 @@ export interface EventItem {
   /** Datas ISO (AAAA-MM-DD); `end` para eventos de vários dias. */
   start: string;
   end?: string;
+  /** Episódio de podcast (a data é a de lançamento). */
+  podcast?: { show: string; episode: number; minutes: number; spotify: string; page?: string };
   city: City;
   venue?: Text;
   roles: Role[];
@@ -94,6 +97,7 @@ export async function getEvents(): Promise<EventItem[]> {
         city,
         venue: entry.data.venue,
         roles: entry.data.roles,
+        podcast: entry.data.podcast,
         with: entry.data.with,
         post: parsePost(entry.body),
         links: entry.data.links,
